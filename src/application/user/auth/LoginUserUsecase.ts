@@ -7,6 +7,12 @@ import { User } from "../../../domain/entities/ User";
 export class LoginUserUsecase {
     constructor(private _userRepo: IUserRepository) { }
 
+    /**
+     * 
+     * for login users 
+     * 
+     */
+
     async execute(data: LoginUserDTO): Promise<{ token: string; user: User }> {
         const user = await this._userRepo.findByEmail(data.email);
         
