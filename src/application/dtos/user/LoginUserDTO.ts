@@ -8,7 +8,8 @@ export class LoginUserDTO {
     if (!data.email || !emailRegex.test(data.email)) {
       throw new Error("A valid email address is required");
     }
-    if (!data.password || data.password.length < 8) {
+    if (!data.password) {
+      
       throw new Error("Password must be provided");
     }
     this.email = data.email;

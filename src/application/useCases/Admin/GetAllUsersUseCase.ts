@@ -3,14 +3,19 @@ import { IUserRepository } from "../../../domain/repositories/user/ IUserReposit
 import { GetAllUserDTO } from "../../dtos/admin/GetAllUserDTO";
 import { AdminUserMapper } from "../../mapper/admin/AdminUserMapper";
 
+interface PaginationInput {
+  page: number;
+  limit: number;
+}
 
-export class GetAllUsersUseCase implements IGetAllUsersUseCase<void,GetAllUserDTO[]>{
-    constructor (private _userRepo:IUserRepository){}
+export class GetAllUsersUseCase
+  implements IGetAllUsersUseCase<PaginationInput, { users: GetAllUserDTO[]; total: number }>
+{
+  constructor(private _userRepo: IUserRepository) {}
 
-    async execute(): Promise<GetAllUserDTO[]> {
-        const user = await this._userRepo.findAll();
-        return AdminUserMapper.toUserSummaryListDTO(user)
-            
-        
-    }
+  async execute({ page, limit }: PaginationInput): Promise<{ users: GetAllUserDTO[]; total: number }> {
+    const { users, total } = await this._userRepo.findAll(page, limit);
+    const userDTOs = AdminUserMapper.toUserSummaryListDTO(users);
+    return { users: userDTOs, total };
+  }
 }

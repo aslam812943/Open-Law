@@ -1,16 +1,22 @@
 export interface Lawyer {
   id?: string;
-  userId:string;
-  // fullName: string;
-  // email: string;
-  // phone: string;
+  userId: string;
   barNumber: string;
   barAdmissionDate: string;
   yearsOfPractice: number;
   practiceAreas: string[];
   languages: string[];
   documentUrls: string[];
-  dateOfBirth?: string;
-  verificationStatus?: string;
   addresses?: string[];
+  verificationStatus?: string;
+  isVerified: boolean;
+  
+
+
+  user?: {
+    name: string;
+    email: string;
+    phone: number;
+    isBlock: boolean;
+  };
 }

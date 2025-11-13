@@ -1,38 +1,93 @@
-import {Request,Response} from 'express'
-import { LoginAdminUseCase } from '../../../application/useCases/Admin/LoginAdminUseCase'
-// import { AdminRepository } from '../../../infrastructure/repositories/admin/AdminRepository'
-// import { JwtService } from '../../../infrastructure/services/jwt/JwtService'
-import {AdminLoginRequestDTO} from '../../../application/dtos/admin/AdminLoginRequestDTO'
+
+import { Request, Response } from 'express';
+import { LoginAdminUseCase } from '../../../application/useCases/Admin/LoginAdminUseCase';
+import { AdminLoginRequestDTO } from '../../../application/dtos/admin/AdminLoginRequestDTO';
+import { HttpStatusCode } from '../../../infrastructure/interface/enums/HttpStatusCode';
 
 
-// const adminRepository = new AdminRepository();
-// const jwtSerivice = new JwtService()
-// const loginUseCase = new LoginAdminUseCase(adminRepository)
-// loginUseCase.createInitialAdmin();
+// ✅ AdminAuthController
+
+export class AdminAuthController {
+  constructor(private readonly _loginUseCase: LoginAdminUseCase) {}
+
+  // ------------------------------------------------------------
+  // Admin Login Handler
+  // ------------------------------------------------------------
 
 
-export class AdminAuthController{
-constructor(private readonly _loginUseCase:LoginAdminUseCase){}
-
-    async login (req:Request,res:Response){
-        console.log('admin login')
- try {
+  async login(req: Request, res: Response) {
+   
+   console.log('admin login working ')
+    try {
+ 
       const dto = new AdminLoginRequestDTO(req.body);
+
+     
       const result = await this._loginUseCase.execute(dto);
 
-      res.cookie("authToken", result.token, {
+      res.cookie("adminAccessToken", result.token, {
         httpOnly: true,
-        secure: false,
-        maxAge: 15 * 60 * 1000,
+        secure: false, 
+        maxAge: 15 * 60 * 1000, // 15 minutes
       });
 
-      return res.status(200).json({
+      res.cookie('adminRefreshToken',result.refreshToken,{
+        httpOnly:true,
+        secure:false,
+        maxAge:1*24*60*60*1000
+      })
+
+      
+      return res.status(HttpStatusCode.OK).json({
         success: true,
-        message: "Login successful",
+        message: "Admin logged in successfully.",
         data: result,
       });
+
     } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
+
+
+    
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
+        success: false,
+        message: error.message || "Login failed. Please check your credentials and try again.",
+      });
     }
+  }
+
+
+    async logout(req: Request, res: Response): Promise<void> {
+   req
+
+    try {
+   
+      res.clearCookie("adminAccessToken", {
+        httpOnly: true,
+        secure: false,
+       
+    
+      });
+
+      res.clearCookie('adminRefreshToken',{
+        httpOnly:true,
+        secure:false,
+       
+      })
+
+ 
+      //  Send success response
+      res.status(HttpStatusCode.OK).json({
+        success: true,
+        message: "Admin logged out successfully.",
+      });
+    } catch (error: any) {
+
+
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to log out admin. Please try again later.",
+      });
     }
+  }
+
 }

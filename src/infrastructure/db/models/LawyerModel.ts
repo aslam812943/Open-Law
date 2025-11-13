@@ -14,8 +14,8 @@ export interface ILawyerDocument extends Document {
   dateOfBirth?: string;
   verificationStatus?: string;
   addresses?: string[];
-  isVerified:boolean
-  isBlock:boolean
+  isAdminVerified:boolean
+  
 }
 
 const LawyerSchema = new Schema<ILawyerDocument>({
@@ -30,10 +30,11 @@ const LawyerSchema = new Schema<ILawyerDocument>({
   languages: { type: [String], required: true },
   documentUrls: { type: [String], required: true },
   dateOfBirth: { type: String },
-  verificationStatus: { type: String },
+  verificationStatus: { type: String ,default:'pending' },
   addresses: { type: [String] },
-   isVerified:{type:Boolean,default:false},
-  isBlock:{type:Boolean,default:false},
-});
+   isAdminVerified:{type:Boolean,default:false},
+  
+  
+}, { timestamps: true });
 
 export default model<ILawyerDocument>("Lawyer", LawyerSchema);

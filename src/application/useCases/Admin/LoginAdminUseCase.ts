@@ -1,14 +1,12 @@
 import bcrypt from 'bcrypt'
-// import { IAdminUseCase } from '../../interface/use-cases/IAdminUseCase'
 import {ITokenService} from '../../interface/services/TokenServiceInterface'
  import {AdminLoginRequestDTO} from '../../dtos/admin/AdminLoginRequestDTO'
 import { IAdminRepository } from '../../../domain/repositories/admin/IAdminRepository'
 import {ILoginAdminUseCase} from '../interface/admin/ILoginAdminUseCase'
 import AdminLoginResponseDTO  from '../../dtos/admin/AdminLoginResponseDTO'
 import { AdminMapper } from '../../mapper/admin/AdminMapper'
-import { email } from 'zod'
 import { Admin } from '../../../domain/entities/Admin'
-// import jwt from 'jsonwebtoken';
+
 
 
 
@@ -26,15 +24,9 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
 
         if (!ispasswordValid) throw new Error('Invalid credentials')
 
-
-      //  const token = jwt.sign(
-      //        { id: admin.id, email: admin.email },
-      //        process.env.JWT_SECRET as string,
-      //        { expiresIn: '15m' } // Short-lived token
-      //      );
-
       const token = this._tokenService.generateAccessToken({id:admin.id,email:admin.email,role:'admin'})
-     return AdminMapper.toLoginResponse(admin,token)
+      const refreshToken = this._tokenService.generateRefreshToken({id:admin.id})
+     return AdminMapper.toLoginResponse(admin,token,refreshToken)
     }
 
  async createInitialAdmin() {

@@ -1,24 +1,19 @@
-import {User} from '../../../domain/entities/ User'
-import { GetAllUserDTO,IGetAllUserDTO } from '../../dtos/admin/GetAllUserDTO'
+import { User } from "../../../domain/entities/ User";
+import { GetAllUserDTO, IGetAllUserDTO } from "../../dtos/admin/GetAllUserDTO";
 
-
-export class AdminUserMapper{
-   static toUserSummaryDTO(user: User): GetAllUserDTO {
+export class AdminUserMapper {
+  static toUserSummaryDTO(user: User): GetAllUserDTO {
     const dto: IGetAllUserDTO = {
-      id: user.id!,
+      _id: user.id ? user.id.toString() : "",
       name: user.name,
       email: user.email,
       phone: user.phone.toString(),
-      isBlock:false
-    //   role: user.role,
-    //   isVerified: user.isVerified,
-    //   hasSubmittedVerification: user.hasSubmittedVerification,
-    }
+      isBlock: user.isBlock,
+    };
     return new GetAllUserDTO(dto);
-  };
+  }
 
-  // convenience: array mapping
   static toUserSummaryListDTO(users: User[]): GetAllUserDTO[] {
-    return users.map(AdminUserMapper.toUserSummaryDTO);
-  }  
+    return users.map((user) => this.toUserSummaryDTO(user));
+  }
 }

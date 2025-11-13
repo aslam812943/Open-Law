@@ -1,6 +1,7 @@
 
 import { User } from "../../entities/ User";
 import { UserRegisterDTO } from "../../../application/dtos/user/ RegisterUserDTO";
+import { GetAllUserDTO } from "../../../application/dtos/admin/GetAllUserDTO";
 
 export interface IUserRepository {
   createUser(user: UserRegisterDTO): Promise<User>;
@@ -8,5 +9,12 @@ export interface IUserRepository {
   verifyUser(userId:string):Promise<void>;
   updateUserPassword(userId:string,hashedPassword:string):Promise<void>
    markVerificationSubmitted(userId: string): Promise<void>;
-   findAll():Promise<User[]>
+  // findAll(): Promise<User[]>;
+
+  findAll(
+    page: number,
+    limit: number
+  ): Promise<{ users: User[]; total: number }>;
+  blockUser(id:string) :Promise<void>
+  unBlockUser(id:string):Promise<void>
 }
