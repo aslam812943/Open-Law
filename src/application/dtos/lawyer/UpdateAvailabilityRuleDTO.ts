@@ -1,7 +1,6 @@
-export class AvailabilityRule {
-  constructor(
-    public id:string,
-    public title: string,
+export class UpdateAvailabilityRuleDTO{
+    constructor(
+public title: string,
     public startTime: string,
     public endTime: string,
     public startDate: string,
@@ -11,7 +10,6 @@ export class AvailabilityRule {
     public slotDuration: number,
     public maxBookings: number,
     public sessionType: string,
-    public exceptionDays: string[],
-    public lawyerId: string
-  ) {}
+    public exceptionDays: string[]
+    ){}
 }
