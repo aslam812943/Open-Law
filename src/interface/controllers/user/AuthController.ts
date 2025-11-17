@@ -136,7 +136,7 @@ export class AuthController {
     try {
       const dto = new LoginUserDTO(req.body);
       const { token, refreshToken, user } = await this._loginUserUsecase.execute(dto);
-console.log('data vannu login')
+
       if (user.role == 'user') {
         res.cookie("userAccessToken", token, {
           httpOnly: true,
