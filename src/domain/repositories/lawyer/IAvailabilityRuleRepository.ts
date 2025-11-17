@@ -8,4 +8,5 @@ export interface IAvailabilityRuleRepository{
     deleteSlotsByRuleId(ruleId:string):Promise<void>;
     getRuleById(ruleId:string):Promise<any>;
     getAllRules(id:string):Promise <AvailabilityRule[]>;
+    deleteRuleById(ruleId:string):Promise<void>
 }

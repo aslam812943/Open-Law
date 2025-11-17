@@ -15,14 +15,14 @@ export class UpdateAvailabilityRuleUseCase implements IUpdateAvailabilityRuleUse
       const updateRule = await this._repo.updateRule(ruleId, dto);
       if (!updateRule) throw new Error("Rule not found");
 
-      // Delete old slots
+   
       await this._repo.deleteSlotsByRuleId(ruleId);
 
-      // Generate new slots
+     
       const newSlots = SlotGeneratorService.generateSlots(updateRule);
       if (!newSlots) throw new Error("Failed to generate slots");
 
-      // Save new slots
+    
       await this._repo.createSlots(ruleId, newSlots);
 
       return {
@@ -30,7 +30,7 @@ export class UpdateAvailabilityRuleUseCase implements IUpdateAvailabilityRuleUse
         slots: newSlots,
       };
     } catch (error: any) {
-      // IMPORTANT: Throw again so controller handles it
+     
       throw new Error(error.message || "Failed to update rule");
     }
   }

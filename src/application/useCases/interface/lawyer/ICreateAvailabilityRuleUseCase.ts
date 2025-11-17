@@ -17,3 +17,8 @@ export interface IUpdateAvailabilityRuleUseCase{
 export interface IGetAllAvailableRuleUseCase{
     execute(id:string):Promise<AvailabilityRule[]>
 }
+
+
+export interface IDeleteAvailableRuleUseCase{
+    execute(ruleId:string):Promise<void>
+}

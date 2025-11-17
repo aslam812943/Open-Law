@@ -7,9 +7,9 @@ export class AvailabilityRule {
     public startDate: string,
     public endDate: string,
     public availableDays: string[],
-    public bufferTime: number,
-    public slotDuration: number,
-    public maxBookings: number,
+    public bufferTime: string,
+    public slotDuration: string,
+    public maxBookings:string,
     public sessionType: string,
     public exceptionDays: string[],
     public lawyerId: string
