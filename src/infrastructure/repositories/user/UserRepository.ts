@@ -4,6 +4,7 @@ import { User } from "../../../domain/entities/ User";
 import { IUserRepository } from "../../../domain/repositories/user/ IUserRepository";
 import UserModel, { IUserDocument } from "../../db/models/ UserModel";
 import { BaseRepository } from "../user/BaseRepository";
+import bcrypt from "bcrypt";
 
 
 //  UserRepository
@@ -141,7 +142,7 @@ export class UserRepository
   }
 
   // ------------------------------------------------------------
-  // 🧩unBlockUser()
+  // unBlockUser()
   // ------------------------------------------------------------
   async unBlockUser(id: string): Promise<void> {
     try {
@@ -152,9 +153,7 @@ export class UserRepository
     }
   }
 
-  // ------------------------------------------------------------
-  //  mapToDomain()
-  // ------------------------------------------------------------
+
   private mapToDomain(doc: IUserDocument): User {
     return {
       id: String(doc._id),
@@ -168,4 +167,40 @@ export class UserRepository
       hasSubmittedVerification: doc.hasSubmittedVerification ?? false,
     };
   }
+
+async findById(id: string): Promise<User> {
+  try {
+    const doc = await UserModel.findById(id);
+    if (!doc) throw new Error('User document not found ');
+    return {
+      id: String(doc._id),
+      name: doc.name,
+      email: doc.email,
+      password: doc.password,
+      phone: doc.phone,
+      isVerified: doc.isVerified,
+      role: doc.role,
+      isBlock: doc.isBlock,
+      hasSubmittedVerification: doc.hasSubmittedVerification ?? false,
+    };
+  } catch (error: any) {
+    throw new Error('findById failed: ' + (error.message || error));
+  }
+}
+
+async changePassword(id: string, oldPass: string, newPass: string) {
+  try {
+    const user = await UserModel.findById(id);
+    if (!user) throw new Error('User not found ');
+
+    const match = await bcrypt.compare(oldPass, user.password);
+    if (!match) throw new Error('Incorrect old password ');
+
+    user.password = await bcrypt.hash(newPass, 10);
+    await user.save();
+  } catch (error: any) {
+  
+    throw new Error('changePassword failed: ' + (error.message || error));
+  }
+}
 }

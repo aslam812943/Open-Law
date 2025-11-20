@@ -10,6 +10,15 @@ import { LoginUserUsecase } from "../../../application/useCases/user/auth/LoginU
 import { ResendOtpUseCase } from "../../../application/useCases/user/auth/ResendOtpUseCase";
 import { RequestForgetPasswordUseCase } from "../../../application/useCases/user/auth/RequestForgetPasswordUseCase";
 import { VerifyResetPasswordUseCase } from "../../../application/useCases/user/auth/VerifyResetPasswordUseCase";
+import { ChangePasswordUseCase } from "../../../application/useCases/user/ChengePasswordUseCase";
+
+// Cloudinary Upload Service
+import { upload } from "../../../infrastructure/services/cloudinary/CloudinaryConfig";
+
+import { verifyToken } from "../../middlewares/verifyToken";
+
+import { GetProfileUseCase } from "../../../application/useCases/user/GetProfileUseCase";
+import { GetProfileController } from "../../controllers/user/GetProfileController";
 
 //  Importing Repositories and Services 
 import { UserRepository } from "../../../infrastructure/repositories/user/UserRepository";
@@ -37,9 +46,10 @@ const verifyResetPasswordUseCase = new VerifyResetPasswordUseCase(userRepository
 const verifyOtpUseCase = new VerifyOtpUseCase(userRepository, otpService);                                    
 const registerUserUsecase = new RegisterUserUsecase(userRepository, generateOtpUseCase, mailService);        
 const loginUserUsecase = new LoginUserUsecase(userRepository, loginResponseMapper, tokenService);               
-const resendOtpUseCase = new ResendOtpUseCase(cacheService, otpService, mailService);                           
-
-
+const resendOtpUseCase = new ResendOtpUseCase(cacheService, otpService, mailService);      
+const getProfileUseCase     = new GetProfileUseCase(userRepository)                 
+const changePasswordUseCase = new ChangePasswordUseCase(userRepository)
+ const getProfileController = new GetProfileController(getProfileUseCase,changePasswordUseCase)
 const authController = new AuthController(
   registerUserUsecase,
   verifyOtpUseCase,
@@ -73,6 +83,27 @@ router.post("/reset-password", (req, res) => authController.verifyResetPassword(
 router.post('/logout',(req,res)=>authController.logoutUser(req,res))
 
 
+router.get('/profile',verifyToken(['user']),(req,res)=>{getProfileController.getprofiledetils(req,res)})
+
+
+router.put('/profile/profile-image', upload.single('profileImage'), (req, res) => {
+  console.log("File:", req.file); 
+  console.log("Body:", req.body);   
+console.log('vann')
+  res.status(200).json({ message: "Image uploaded" });
+});
+
+
+router.put("/profile/update", (req,res) =>{
+ console.log('profile update ',req.body);
+ res.status(200)
+}
+
+
+)
+
+
+router.put('/profile/password',verifyToken(['user']),(req,res)=>getProfileController.chengePassword(req,res))
 // router.post('/verifyDetils',(req,res)=>authController.verify(req,res))
 
 export default router;

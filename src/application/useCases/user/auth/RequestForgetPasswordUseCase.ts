@@ -31,7 +31,7 @@ export class RequestForgetPasswordUseCase {
         throw new Error("Failed to generate password reset OTP. Please try again.");
       }
 
-      // ✅ Beautiful HTML Email
+
       await this._mailService.sendMail(
         data.email,
         "Password Reset OTP - LegalConnect",

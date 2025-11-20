@@ -9,12 +9,15 @@ export interface IUserRepository {
   verifyUser(userId:string):Promise<void>;
   updateUserPassword(userId:string,hashedPassword:string):Promise<void>
    markVerificationSubmitted(userId: string): Promise<void>;
-  // findAll(): Promise<User[]>;
+ 
 
   findAll(
     page: number,
     limit: number
   ): Promise<{ users: User[]; total: number }>;
   blockUser(id:string) :Promise<void>
-  unBlockUser(id:string):Promise<void>
+  unBlockUser(id:string):Promise<void>;
+  findById(id:string):Promise<User>;
+  changePassword(id:string,oldPassword:string,newPassword:string):Promise<void>
+
 }
