@@ -1,11 +1,12 @@
-export class ResponseGetProfileDTO{
+export class ProfileUpdateDTO{
     constructor(
         public id:string,
         public name:string,
-        public email:string,
         public phone:string,
         public profileImage:string,
-        public Address:object
-        
+        public address:string,
+        public city:string,
+        public pincode:string
+
     ){}
 }

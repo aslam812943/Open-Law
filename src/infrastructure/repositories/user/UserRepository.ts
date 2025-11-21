@@ -182,6 +182,8 @@ async findById(id: string): Promise<User> {
       role: doc.role,
       isBlock: doc.isBlock,
       hasSubmittedVerification: doc.hasSubmittedVerification ?? false,
+      profileImage:doc.profileImage??'',
+      address:doc.Address
     };
   } catch (error: any) {
     throw new Error('findById failed: ' + (error.message || error));
@@ -201,6 +203,32 @@ async changePassword(id: string, oldPass: string, newPass: string) {
   } catch (error: any) {
   
     throw new Error('changePassword failed: ' + (error.message || error));
+  }
+}
+
+
+async profileUpdate(id: string, name: string, phone: string,imgurl:string,address:string,city:string,pincode:string): Promise<void> {
+  try{
+const user = await UserModel.findById(id)
+if(!user) throw new Error('user not found')
+user.name = name
+user.phone = Number(phone)
+if(imgurl){
+user.profileImage = imgurl
+}
+if (!user.Address) {
+  user.Address = {
+    address: "",
+    city: "",
+    pincode: 0
+  };
+}
+user.Address.address = address;
+user.Address.city = city;
+user.Address.pincode = Number(pincode);
+await user.save()
+  }catch(error:any){
+console.log(error)
   }
 }
 }

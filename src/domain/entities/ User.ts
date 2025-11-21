@@ -10,6 +10,8 @@ export interface User {
   role: string;
   isBlock : boolean;
   hasSubmittedVerification:boolean;
+  profileImage?:string
+  address?: object
 
 }
 

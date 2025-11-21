@@ -1,5 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { boolean } from "zod";
+
+
+
+export interface Address {
+  address: string;
+  city: string;
+  pincode: number;
+}
+
 
 export interface IUserDocument extends Document {
   name: string;
@@ -9,8 +17,19 @@ export interface IUserDocument extends Document {
   isVerified: boolean;
   role: string;
   hasSubmittedVerification:boolean
-  isBlock:boolean
+  isBlock:boolean;
+ profileImage:string
+ Address: Address; 
 }
+
+
+const AddressSchema: Schema<Address> = new Schema({
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  pincode: { type: Number, required: true },
+}, { _id: false });
+
+
 
 const UserSchema: Schema<IUserDocument> = new Schema({
   name: { type: String, required: true },
@@ -20,7 +39,10 @@ const UserSchema: Schema<IUserDocument> = new Schema({
   isVerified: { type: Boolean, default: false },
   role: { type: String, default: "user" },
   hasSubmittedVerification:{type:Boolean,default:false},
-  isBlock:{type:Boolean,default:false}
+  isBlock:{type:Boolean,default:false},
+  profileImage:{type:String},
+  Address: { type: AddressSchema }
+  
 });
 
 export default mongoose.model<IUserDocument>("User", UserSchema);

@@ -1,5 +1,7 @@
 import { ResponseGetProfileDTO } from "../../../dtos/user/ResponseGetProfileDTO"
 import { ChangePasswordDTO } from "../../../dtos/user/ChangePasswordDTO"
+import { ProfileUpdateDTO } from "../../../dtos/user/ProfileupdateDTO"
+
 
 export interface IGetProfileUseCase{
     execute(id:string) :Promise<ResponseGetProfileDTO>
@@ -9,4 +11,10 @@ export interface IGetProfileUseCase{
 
 export interface IChangePasswordUseCase{
     execute(data:ChangePasswordDTO):Promise<any>
+}
+
+
+
+export interface IProfileEditUseCase{
+    execute(data:ProfileUpdateDTO):Promise<void>
 }

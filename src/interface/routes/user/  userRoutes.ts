@@ -11,7 +11,7 @@ import { ResendOtpUseCase } from "../../../application/useCases/user/auth/Resend
 import { RequestForgetPasswordUseCase } from "../../../application/useCases/user/auth/RequestForgetPasswordUseCase";
 import { VerifyResetPasswordUseCase } from "../../../application/useCases/user/auth/VerifyResetPasswordUseCase";
 import { ChangePasswordUseCase } from "../../../application/useCases/user/ChengePasswordUseCase";
-
+import { ProfileEditUseCase } from "../../../application/useCases/user/ProfileEditUseCase";
 // Cloudinary Upload Service
 import { upload } from "../../../infrastructure/services/cloudinary/CloudinaryConfig";
 
@@ -32,24 +32,25 @@ import { TokenService } from '../../../infrastructure/services/jwt/TokenService'
 const router = express.Router();
 
 //  Initialize all service instances
-const cacheService = new RedisCacheService();         
-const otpService = new OtpService(cacheService);      
-const generateOtpUseCase = new GenerateOtpUseCase(otpService); 
-const mailService = new NodeMailerEmailService();     
-const userRepository = new UserRepository();         
-const loginResponseMapper = new LoginResponseMapper(); 
-const tokenService = new TokenService();             
+const cacheService = new RedisCacheService();
+const otpService = new OtpService(cacheService);
+const generateOtpUseCase = new GenerateOtpUseCase(otpService);
+const mailService = new NodeMailerEmailService();
+const userRepository = new UserRepository();
+const loginResponseMapper = new LoginResponseMapper();
+const tokenService = new TokenService();
 
 //  Initialize use case instances 
-const requestForgetPasswordUseCase = new RequestForgetPasswordUseCase(userRepository, otpService, mailService); 
-const verifyResetPasswordUseCase = new VerifyResetPasswordUseCase(userRepository, otpService);                
-const verifyOtpUseCase = new VerifyOtpUseCase(userRepository, otpService);                                    
-const registerUserUsecase = new RegisterUserUsecase(userRepository, generateOtpUseCase, mailService);        
-const loginUserUsecase = new LoginUserUsecase(userRepository, loginResponseMapper, tokenService);               
-const resendOtpUseCase = new ResendOtpUseCase(cacheService, otpService, mailService);      
-const getProfileUseCase     = new GetProfileUseCase(userRepository)                 
+const requestForgetPasswordUseCase = new RequestForgetPasswordUseCase(userRepository, otpService, mailService);
+const verifyResetPasswordUseCase = new VerifyResetPasswordUseCase(userRepository, otpService);
+const verifyOtpUseCase = new VerifyOtpUseCase(userRepository, otpService);
+const registerUserUsecase = new RegisterUserUsecase(userRepository, generateOtpUseCase, mailService);
+const loginUserUsecase = new LoginUserUsecase(userRepository, loginResponseMapper, tokenService);
+const resendOtpUseCase = new ResendOtpUseCase(cacheService, otpService, mailService);
+const getProfileUseCase = new GetProfileUseCase(userRepository)
 const changePasswordUseCase = new ChangePasswordUseCase(userRepository)
- const getProfileController = new GetProfileController(getProfileUseCase,changePasswordUseCase)
+const profileEditUseCase = new ProfileEditUseCase(userRepository)
+const getProfileController = new GetProfileController(getProfileUseCase, changePasswordUseCase, profileEditUseCase)
 const authController = new AuthController(
   registerUserUsecase,
   verifyOtpUseCase,
@@ -80,30 +81,23 @@ router.post("/forget-password", (req, res) => authController.requestForgetPasswo
 router.post("/reset-password", (req, res) => authController.verifyResetPassword(req, res));
 
 
-router.post('/logout',(req,res)=>authController.logoutUser(req,res))
+router.post('/logout', (req, res) => authController.logoutUser(req, res))
 
 
-router.get('/profile',verifyToken(['user']),(req,res)=>{getProfileController.getprofiledetils(req,res)})
+router.get('/profile', verifyToken(['user']), (req, res) => { getProfileController.getprofiledetils(req, res) })
 
 
-router.put('/profile/profile-image', upload.single('profileImage'), (req, res) => {
-  console.log("File:", req.file); 
-  console.log("Body:", req.body);   
-console.log('vann')
-  res.status(200).json({ message: "Image uploaded" });
-});
 
 
-router.put("/profile/update", (req,res) =>{
- console.log('profile update ',req.body);
- res.status(200)
-}
+router.put(
+  "/profile/update",
+  verifyToken(['user']),
+  upload.single("profileImage"),
+  (req, res) => getProfileController.editProfile(req, res)
+);
 
 
-)
+router.put('/profile/password', verifyToken(['user']), (req, res) => getProfileController.chengePassword(req, res))
 
-
-router.put('/profile/password',verifyToken(['user']),(req,res)=>getProfileController.chengePassword(req,res))
-// router.post('/verifyDetils',(req,res)=>authController.verify(req,res))
 
 export default router;
