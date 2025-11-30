@@ -11,7 +11,7 @@ export interface IGetAllLawyerDTO {
   documentUrls: string[];
 
   
-  addresses: (string | number)[];
+
 
   
   addressObject?: {
@@ -40,7 +40,7 @@ export class GetAllLawyerDTO implements IGetAllLawyerDTO {
   languages: string[];
   documentUrls: string[];
 
-  addresses: (string | number)[];
+ 
   addressObject?: {
     address: string;
     city: string;
@@ -63,8 +63,7 @@ export class GetAllLawyerDTO implements IGetAllLawyerDTO {
     this.practiceAreas = data.practiceAreas;
     this.languages = data.languages;
     this.documentUrls = data.documentUrls;
-
-    this.addresses = data.addresses;        
+    
     this.addressObject = data.addressObject; 
 
     this.verificationStatus = data.verificationStatus;

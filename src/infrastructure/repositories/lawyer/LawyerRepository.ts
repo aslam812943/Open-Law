@@ -51,64 +51,64 @@ export class LawyerRepository implements ILawyerRepository {
   // ------------------------------------------------------------
   //  findAll(
   // ------------------------------------------------------------
-  async findAll(query?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }): Promise<{ lawyers: Lawyer[]; total: number }> {
-    try {
-      const page = query?.page ?? 1;
-      const limit = query?.limit ?? 10;
-      const search = query?.search ?? "";
+    async findAll(query?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+    }): Promise<{ lawyers: Lawyer[]; total: number }> {
+      try {
+        const page = query?.page ?? 1;
+        const limit = query?.limit ?? 10;
+        const search = query?.search ?? "";
 
-      const filter = search
-        ? { barNumber: { $regex: search, $options: "i" } }
-        : {};
+        const filter = search
+          ? { barNumber: { $regex: search, $options: "i" } }
+          : {};
 
-      const [lawyerDocs, total] = await Promise.all([
-        LawyerModel.find(filter)
-          .populate({
-            path: "userId",
-            select: "name email phone role isBlock",
-            match: { role: { $ne: "admin" } },
-          })
-          .skip((page - 1) * limit)
-          .limit(limit)
-          .exec(),
+        const [lawyerDocs, total] = await Promise.all([
+          LawyerModel.find(filter)
+            .populate({
+              path: "userId",
+              select: "name email phone role isBlock",
+              match: { role: { $ne: "admin" } },
+            })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec(),
 
-        LawyerModel.countDocuments(filter),
-      ]);
+          LawyerModel.countDocuments(filter),
+        ]);
 
-      const validLawyers = lawyerDocs.filter((doc) => doc.userId !== null);
+        const validLawyers = lawyerDocs.filter((doc) => doc.userId !== null);
 
-      const lawyers = validLawyers.map((doc) => ({
-        id: (doc._id as Types.ObjectId).toString(),
-        userId: (doc.userId as any)._id.toString(),
-        barNumber: doc.barNumber,
-        barAdmissionDate: doc.barAdmissionDate,
-        yearsOfPractice: doc.yearsOfPractice,
-        practiceAreas: doc.practiceAreas,
-        languages: doc.languages,
-        documentUrls: doc.documentUrls,
-        addresses: { address: '', city: '', state: '', pincode: 0 },
+        const lawyers = validLawyers.map((doc) => ({
+          id: (doc._id as Types.ObjectId).toString(),
+          userId: (doc.userId as any)._id.toString(),
+          barNumber: doc.barNumber,
+          barAdmissionDate: doc.barAdmissionDate,
+          yearsOfPractice: doc.yearsOfPractice,
+          practiceAreas: doc.practiceAreas,
+          languages: doc.languages,
+          documentUrls: doc.documentUrls,
+          addresses: { address: '', city: '', state: '', pincode: 0 },
 
-        verificationStatus: doc.verificationStatus,
-        isVerified: doc.isAdminVerified,
+          verificationStatus: doc.verificationStatus,
+          isVerified: doc.isAdminVerified,
 
-        user: {
-          name: (doc.userId as any).name,
-          email: (doc.userId as any).email,
-          phone: (doc.userId as any).phone,
-          isBlock: (doc.userId as any).isBlock,
-        },
-        profileImage: doc.Profileimageurl ?? "",
-      }));
-
-      return { lawyers, total };
-    } catch (error: any) {
-      throw new Error("Database error while fetching lawyers.");
+          user: {
+            name: (doc.userId as any).name,
+            email: (doc.userId as any).email,
+            phone: (doc.userId as any).phone,
+            isBlock: (doc.userId as any).isBlock,
+          },
+          profileImage: doc.Profileimageurl ?? "",
+        }));
+    
+        return { lawyers, total };
+      } catch (error: any) {
+        throw new Error("Database error while fetching lawyers.");
+      }
     }
-  }
 
   // ------------------------------------------------------------
   //  blockLawyer()
@@ -313,4 +313,8 @@ export class LawyerRepository implements ILawyerRepository {
       throw new Error('changePassword failed: ' + (error.message || error));
     }
   }
+
+
+
+
 }

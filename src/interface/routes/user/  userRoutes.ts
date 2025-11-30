@@ -14,6 +14,7 @@ import { ChangePasswordUseCase } from "../../../application/useCases/user/Chenge
 import { ProfileEditUseCase } from "../../../application/useCases/user/ProfileEditUseCase";
 import { GoogleAuthUsecase } from "../../../application/useCases/user/GoogleAuthUseCase";
 import { GoogleAuthService } from "../../../infrastructure/services/googleAuth/GoogleAuthService";
+import { GetAllLawyersUseCase } from "../../../application/useCases/user/GetAllLawyersUseCase";
 // Cloudinary Upload Service
 import { upload } from "../../../infrastructure/services/cloudinary/CloudinaryConfig";
 
@@ -21,9 +22,11 @@ import { verifyToken } from "../../middlewares/verifyToken";
 
 import { GetProfileUseCase } from "../../../application/useCases/user/GetProfileUseCase";
 import { GetProfileController } from "../../controllers/user/GetProfileController";
+import { GetAllLawyersController } from "../../controllers/user/GetAllLawyersController";
 
 //  Importing Repositories and Services 
 import { UserRepository } from "../../../infrastructure/repositories/user/UserRepository";
+import { LawyerRepository } from "../../../infrastructure/repositories/lawyer/LawyerRepository";
 import { RedisCacheService } from "../../../infrastructure/services/otp/RedisCacheService";
 import { NodeMailerEmailService } from "../../../infrastructure/services/nodeMailer/NodeMailerEmailService";
 import { OtpService } from "../../../infrastructure/services/otp/OtpService";
@@ -41,7 +44,7 @@ const mailService = new NodeMailerEmailService();
 const userRepository = new UserRepository();
 const loginResponseMapper = new LoginResponseMapper();
 const tokenService = new TokenService();
-
+const lawyerRepository = new LawyerRepository()
 //  Initialize use case instances 
 const requestForgetPasswordUseCase = new RequestForgetPasswordUseCase(userRepository, otpService, mailService);
 const verifyResetPasswordUseCase = new VerifyResetPasswordUseCase(userRepository, otpService);
@@ -55,6 +58,8 @@ const profileEditUseCase = new ProfileEditUseCase(userRepository)
 const getProfileController = new GetProfileController(getProfileUseCase, changePasswordUseCase, profileEditUseCase)
 const googleAuthService = new GoogleAuthService();
 const googleAuthUseCase = new GoogleAuthUsecase(userRepository, googleAuthService, tokenService);
+const getAllLawyersusecase = new GetAllLawyersUseCase(lawyerRepository)
+const getAllLawyersController = new GetAllLawyersController(getAllLawyersusecase)
 const authController = new AuthController(
   registerUserUsecase,
   verifyOtpUseCase,
@@ -107,5 +112,9 @@ router.put(
 
 router.put('/profile/password', verifyToken(['user']), (req, res) => getProfileController.chengePassword(req, res))
 
+
+
+
+router.get('/lawyers',(req,res)=>getAllLawyersController.GetAllLawyers(req,res))
 
 export default router;

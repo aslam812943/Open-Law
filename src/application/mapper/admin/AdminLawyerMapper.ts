@@ -16,23 +16,16 @@ export class AdminLawyerMapper {
       languages: lawyer.languages || [],
       documentUrls: lawyer.documentUrls || [],
 
-      addresses: lawyer.addresses
-        ? [
-            lawyer.addresses.address,
-            lawyer.addresses.city,
-            lawyer.addresses.state,
-            lawyer.addresses.pincode
-          ]
-        : [],
+
 
 
       addressObject: lawyer.addresses
         ? {
-            address: lawyer.addresses.address,
-            city: lawyer.addresses.city,
-            state: lawyer.addresses.state,
-            pincode: lawyer.addresses.pincode,
-          }
+          address: lawyer.addresses.address,
+          city: lawyer.addresses.city,
+          state: lawyer.addresses.state,
+          pincode: lawyer.addresses.pincode,
+        }
         : undefined,
 
       verificationStatus: lawyer.verificationStatus,

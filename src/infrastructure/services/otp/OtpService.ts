@@ -1,33 +1,45 @@
 import { RedisCacheService } from "./RedisCacheService";
 
-
 export class OtpService {
-    constructor(private cache: RedisCacheService) { }
+  constructor(private cache: RedisCacheService) {}
 
-    async generateOtp(email: string, data: any): Promise<string> {
+  async generateOtp(email: string, data: any): Promise<string> {
+    try {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await this.cache.set(`otp:${email}`, 120, JSON.stringify({ otp, data }))
-        return otp;
+      await this.cache.set(`otp:${email}`, 300, JSON.stringify({ otp, data }));
+
+
+      return otp;
+    } catch (error) {
+     
+      throw new Error("Failed to generate OTP. Please try again.");
     }
+  }
 
+  async verifyOtp(email: string, otp: string): Promise<any> {
+    try {
+    
 
-    async verifyOtp(email: string, otp: string): Promise<any> {
-        const stored = await this.cache.get(`otp:${email}`);
-       
+      const stored = await this.cache.get(`otp:${email}`);
 
-        if (!stored) throw new Error('OTP expired or not found');
+      if (!stored) {
+        throw new Error("OTP expired or does not exist.");
+      }
 
-        const { otp: savedOtp, data } = JSON.parse(stored);
+      const { otp: savedOtp, data } = JSON.parse(stored);
 
-      
-        
+      if (savedOtp !== otp) {
+        throw new Error("Invalid OTP.");
+      }
 
-       
+     
+      await this.cache.del(`otp:${email}`);
 
-     if(savedOtp!==otp) throw new Error('Invalid otp')
-
-        await this.cache.del(`otp:${email}`);
-        return data;
+      return data;
+    } catch (error: any) {
+   
+      throw new Error(error.message || "OTP verification failed.");
     }
+  }
 }

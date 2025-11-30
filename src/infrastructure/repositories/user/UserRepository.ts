@@ -60,7 +60,8 @@ export class UserRepository
   async createUser(user: UserRegisterDTO): Promise<User> {
     try {
       const userDoc = new UserModel(user);
-      await userDoc.save();
+     await userDoc.save();
+
 
       return {
         id: String(userDoc._id),
@@ -182,7 +183,7 @@ export class UserRepository
         isBlock: doc.isBlock,
         hasSubmittedVerification: doc.hasSubmittedVerification ?? false,
         profileImage: doc.profileImage ?? '',
-        address: doc.Address
+        address: doc.address
       };
     } catch (error: any) {
       throw new Error('findById failed: ' + (error.message || error));
@@ -215,18 +216,18 @@ export class UserRepository
       if (imgurl) {
         user.profileImage = imgurl
       }
-      if (!user.Address) {
-        user.Address = {
+      if (!user.address) {
+        user.address = {
           address: "",
           city: "",
           state: '',
           pincode: 0
         };
       }
-      user.Address.address = address;
-      user.Address.city = city;
-      user.Address.state = state;
-      user.Address.pincode = Number(pincode);
+      user.address.address = address;
+      user.address.city = city;
+      user.address.state = state;
+      user.address.pincode = Number(pincode);
       await user.save()
     } catch (error: any) {
       console.log(error)
@@ -245,9 +246,8 @@ export class UserRepository
     if (!user.id) throw new Error("User ID is required for update");
 
     const updateData: any = { ...user };
-    delete updateData.id; // Don't update _id
+    delete updateData.id; 
 
-    // Map domain fields to DB fields if necessary (e.g. address -> Address)
     if (user.address) {
       updateData.Address = user.address;
       delete updateData.address;

@@ -18,17 +18,17 @@ export interface IUserDocument extends Document {
   hasSubmittedVerification: boolean;
   isBlock: boolean;
   profileImage?: string;
-  Address?: Address;
+  address?: Address;
   googleId?: string;
 }
 
 
 const AddressSchema: Schema<Address> = new Schema(
   {
-    address: { type: String, required: true },
-    city: { type: String, required: true },
+    address: { type: String },
+    city: { type: String },
     state: { type: String },
-    pincode: { type: Number, required: true },
+    pincode: { type: Number},
   },
   { _id: false }
 );
@@ -54,13 +54,13 @@ const UserSchema: Schema<IUserDocument> = new Schema(
 
     profileImage: { type: String, default: "" },
 
-    Address: { type: AddressSchema, default: null },
+    address: { type: AddressSchema },
 
     googleId: {
       type: String,
       unique: true,
       sparse: true,
-      default: null, 
+      
     },
   },
   { timestamps: true }

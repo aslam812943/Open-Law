@@ -11,6 +11,6 @@ export interface ILawyerRepository {
   findById(id: string): Promise<Lawyer>;
   updateProfile(id: string, dto: UpdateLawyerProfileDTO): Promise<void>
   changePassword(id: string, oldPass: string, newPass: string): Promise<void>
-
+ 
 }
 
