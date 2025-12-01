@@ -54,7 +54,7 @@ export class AuthController {
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
-      
+  console.log('this is from controlre')
       const result = await this.verifyOtpUseCase.execute(email, otp);
 
       res.status(HttpStatusCode.OK).json({

@@ -17,7 +17,7 @@ export class AdminAuthController {
 
   async login(req: Request, res: Response) {
 
-    console.log('admin login working ')
+
     try {
 
       const dto = new AdminLoginRequestDTO(req.body);
@@ -80,7 +80,7 @@ export class AdminAuthController {
       })
 
 
-      //  Send success response
+
       res.status(HttpStatusCode.OK).json({
         success: true,
         message: "Admin logged out successfully.",
