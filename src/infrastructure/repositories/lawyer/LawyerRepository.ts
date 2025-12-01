@@ -51,64 +51,109 @@ export class LawyerRepository implements ILawyerRepository {
   // ------------------------------------------------------------
   //  findAll(
   // ------------------------------------------------------------
-    async findAll(query?: {
-      page?: number;
-      limit?: number;
-      search?: string;
-    }): Promise<{ lawyers: Lawyer[]; total: number }> {
-      try {
-        const page = query?.page ?? 1;
-        const limit = query?.limit ?? 10;
-        const search = query?.search ?? "";
+  async findAll(query?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sort?: string;
+  filter?: string;
+}): Promise<{ lawyers: Lawyer[]; total: number }> {
+  try {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 10;
+    const search = query?.search ?? "";
+    const sort = query?.sort ?? "";
+    const filter = query?.filter ?? "";
 
-        const filter = search
-          ? { barNumber: { $regex: search, $options: "i" } }
-          : {};
+    // MATCH CONDITIONS
+    const match: any = {
+      ...(search && {
+        $or: [
+          { practiceAreas: { $regex: search, $options: "i" } },
+          { languages: { $regex: search, $options: "i" } },
+          { "user.name": { $regex: search, $options: "i" } },
+          { "user.email": { $regex: search, $options: "i" } },
+        ],
+      }),
+    };
 
-        const [lawyerDocs, total] = await Promise.all([
-          LawyerModel.find(filter)
-            .populate({
-              path: "userId",
-              select: "name email phone role isBlock",
-              match: { role: { $ne: "admin" } },
-            })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .exec(),
+    // FILTER FEATURE
+  if (filter) {
+  match.$or = [
+    { practiceAreas: { $regex: filter, $options: "i" } },
+    { practiceAreas: { $elemMatch: { $regex: filter, $options: "i" } } },
+  ];
+}
 
-          LawyerModel.countDocuments(filter),
-        ]);
 
-        const validLawyers = lawyerDocs.filter((doc) => doc.userId !== null);
+    // SORT OPTIONS
+    const sortOption: any = {};
 
-        const lawyers = validLawyers.map((doc) => ({
-          id: (doc._id as Types.ObjectId).toString(),
-          userId: (doc.userId as any)._id.toString(),
-          barNumber: doc.barNumber,
-          barAdmissionDate: doc.barAdmissionDate,
-          yearsOfPractice: doc.yearsOfPractice,
-          practiceAreas: doc.practiceAreas,
-          languages: doc.languages,
-          documentUrls: doc.documentUrls,
-          addresses: { address: '', city: '', state: '', pincode: 0 },
-
-          verificationStatus: doc.verificationStatus,
-          isVerified: doc.isAdminVerified,
-
-          user: {
-            name: (doc.userId as any).name,
-            email: (doc.userId as any).email,
-            phone: (doc.userId as any).phone,
-            isBlock: (doc.userId as any).isBlock,
-          },
-          profileImage: doc.Profileimageurl ?? "",
-        }));
-    
-        return { lawyers, total };
-      } catch (error: any) {
-        throw new Error("Database error while fetching lawyers.");
-      }
+    switch (sort) {
+      case "experience-asc":
+        sortOption["yearsOfPractice"] = 1;
+        break;
+      case "experience-desc":
+        sortOption["yearsOfPractice"] = -1;
+        break;
+      default:
+        sortOption["_id"] = -1;
     }
+
+    const pipeline: any[] = [
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      { $match: match },
+      { $sort: sortOption }, 
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ];
+
+    const countPipeline = [...pipeline.slice(0, 3), { $count: "total" }];
+
+    const [lawyerDocs, countResult] = await Promise.all([
+      LawyerModel.aggregate(pipeline),
+      LawyerModel.aggregate(countPipeline),
+    ]);
+
+    const total = countResult[0]?.total || 0;
+
+    const lawyers = lawyerDocs.map((doc: any) => ({
+      id: doc._id.toString(),
+      userId: doc.user._id.toString(),
+      barNumber: doc.barNumber,
+      barAdmissionDate: doc.barAdmissionDate,
+      yearsOfPractice: doc.yearsOfPractice,
+      practiceAreas: doc.practiceAreas,
+      languages: doc.languages,
+      documentUrls: doc.documentUrls,
+      addresses: { address: "", city: "", state: "", pincode: 0 },
+      verificationStatus: doc.verificationStatus,
+      isVerified: doc.isAdminVerified,
+      profileImage: doc.Profileimageurl ?? "",
+      user: {
+        id: doc.user._id.toString(),
+        name: doc.user.name,
+        email: doc.user.email,
+        phone: doc.user.phone,
+        isBlock: doc.user.isBlock,
+      },
+    }));
+
+    return { lawyers, total };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Database error while fetching lawyers.");
+  }
+}
+
 
   // ------------------------------------------------------------
   //  blockLawyer()
